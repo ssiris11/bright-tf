@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-linux-vm-dev"
+  name     = "rg-bright-dev"
   location = "Central India"
 }
 
