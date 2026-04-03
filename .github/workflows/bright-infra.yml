@@ -1,4 +1,4 @@
-name: Deploy Bright infra Linux VM (Terraform)
+name: Deploy linux VM
 
 on:
   workflow_dispatch:
@@ -7,15 +7,24 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  TF_WORKING_DIR: ./infra
+
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
     environment: dev
+
     steps:
+      # ---------------------------
+      # Checkout
+      # ---------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔐 Azure Login (OIDC)
+      # ---------------------------
+      # Azure Login (OIDC)
+      # ---------------------------
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -23,18 +32,36 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # ⚙️ Setup Terraform
+      # ---------------------------
+      # Setup Terraform
+      # ---------------------------
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 📦 Init
+      # ---------------------------
+      # Terraform Init
+      # ---------------------------
       - name: Terraform Init
-        run: terraform init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -reconfigure
 
-      # 🔍 Plan
+      # ---------------------------
+      # Terraform Validate
+      # ---------------------------
+    #   - name: Terraform Validate
+    #     working-directory: ${{ env.TF_WORKING_DIR }}
+    #     run: terraform validate
+
+      # ---------------------------
+      # Terraform Plan
+      # ---------------------------
       - name: Terraform Plan
-        run: terraform plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -out=tfplan
 
-      # 🚀 Apply
+      # ---------------------------
+      # Terraform Apply
+      # ---------------------------
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
