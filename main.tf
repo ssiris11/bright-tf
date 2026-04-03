@@ -68,3 +68,28 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 }
+# Add NSG resource
+resource "azurerm_network_security_group" "nsg" {
+  name                = "vm-nsg"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+# rule to allow SSH
+resource "azurerm_network_security_rule" "ssh" {
+  name                        = "allow-ssh"
+  priority                    = 1000
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "*" # ⚠️ change later to your IP
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.nsg.name
+}
+# Attach to Subnet
+resource "azurerm_subnet_network_security_group_association" "subnet_assoc" {
+  subnet_id                 = azurerm_subnet.subnet.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
