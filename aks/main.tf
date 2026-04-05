@@ -2,6 +2,15 @@ provider "azurerm" {
   features {}
 }
 
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg-tfstate-common"
+    storage_account_name = "tfstate12345unique"
+    container_name       = "brighttfstate"
+    key                  = "dev-brighttfstate-aks"
+  }
+}
+
 # 🔹 Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "rg-bright-aks"
