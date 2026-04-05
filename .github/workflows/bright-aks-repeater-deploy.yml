@@ -10,7 +10,7 @@ permissions:
 env:
   ACR_NAME: brightacr12345
   IMAGE_NAME: repeater
-  RESOURCE_GROUP: rg-bright-dev
+  RESOURCE_GROUP: rg-bright-aks
   AKS_NAME: bright-aks
 
 jobs:
